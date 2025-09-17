@@ -29,6 +29,12 @@ jobs:
              https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip -O sqlcl.zip
         unzip -q sqlcl.zip -d sqlcl
       shell: bash  
+      
+    - name: Install LB
+      run: |
+        curl -LO https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
+        unzip liquibase-*.zip -d $HOME/liquibase
+        echo "$HOME/liquibase" >> $GITHUB_PATH      
 
     - name: Download and unzip Wallet
       run: |
