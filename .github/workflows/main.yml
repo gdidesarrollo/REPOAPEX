@@ -45,7 +45,7 @@ jobs:
     - name: Run SQL script on Oracle ADB
       run: |
         export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"
-        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" @changelog_001.sql
+        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" liquibase update -changelog-file @changelog_001.sql
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
