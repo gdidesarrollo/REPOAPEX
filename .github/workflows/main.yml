@@ -45,10 +45,12 @@ jobs:
     - name: Run SQL script on Oracle ADB
       run: |
         liquibase \
+          --driver=oracle.jdbc.OracleDriver \
           --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
+          --liquibase-schema-name=${DB_USER} \
           update
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
