@@ -48,6 +48,8 @@ jobs:
         mkdir -p $OJDBC_DIR
         curl -L -o ojdbc8.zip https://download.oracle.com/otn-pub/otn_software/jdbc/211/ojdbc8-full.zip
         unzip -o ojdbc8.zip -d $OJDBC_DIR
+      env:
+         OJDBC_DIR: ${{ github.workspace }}/ojdbc
       shell: bash
 
     - name: Run Liquibase update on Oracle ADB
@@ -65,3 +67,4 @@ jobs:
         DB_USER: GTIM
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         SQLCL_DIR: ${{ github.workspace }}/sqlcl
+        OJDBC_DIR: ${{ github.workspace }}/ojdbc
