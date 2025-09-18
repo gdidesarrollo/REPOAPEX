@@ -15,6 +15,7 @@ jobs:
       DB_USER: GTIM
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       SQLCL_DIR: ${{ github.workspace }}/sqlcl
+      OJDBC_DIR: ${{ github.workspace }}/ojdbc
 
     steps:
     - name: Checkout repository
