@@ -56,13 +56,7 @@ jobs:
 
     - name: Run Liquibase update on Oracle ADB
       run: |
-        liquibase \
-          --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=g715fad23c28830_apexdevdb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))" \
-          --username=${DB_USER} \
-          --password=${DB_PASSWORD} \
-          --changeLogFile=changelog_001.sql \
-          update \          
+        liquibase --driver=oracle.jdbc.OracleDriver --url="jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=g715fad23c28830_apexdevdb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update         
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
