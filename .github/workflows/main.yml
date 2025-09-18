@@ -57,8 +57,9 @@ jobs:
     - name: Run Liquibase update on Oracle ADB
       run: |
         export CLASSPATH="${OJDBC_DIR}/*:$CLASSPATH"
+        export JAVA_TOOL_OPTIONS="-Doracle.net.tns_admin=${TNS_ADMIN} -Doracle.net.ssl_server_dn_match=true"
         liquibase --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
