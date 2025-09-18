@@ -71,11 +71,4 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         SQLCL_DIR: ${{ github.workspace }}/sqlcl
         OJDBC_DIR: ${{ github.workspace }}/ojdbc
-        JAVA_TOOL_OPTIONS: >-
-          -Doracle.net.tns_admin=${{ github.workspace }}/Wallet_APEXDEVDB
-          -Djavax.net.ssl.keyStore=${{ github.workspace }}/Wallet_APEXDEVDB/ewallet.p12
-          -Djavax.net.ssl.keyStoreType=PKCS12
-          -Djavax.net.ssl.keyStorePassword=changeit
-          -Djavax.net.ssl.trustStore=${{ github.workspace }}/Wallet_APEXDEVDB/ewallet.p12
-          -Djavax.net.ssl.trustStoreType=PKCS12
-          -Djavax.net.ssl.trustStorePassword=changeit
+        
