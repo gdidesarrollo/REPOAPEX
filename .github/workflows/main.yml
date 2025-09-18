@@ -58,7 +58,7 @@ jobs:
       run: |
         export CLASSPATH="${OJDBC_DIR}/*:$CLASSPATH"        
         liquibase --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --url="jdbc:oracle:thin:@tcps:adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high.adb.oraclecloud.com?TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
