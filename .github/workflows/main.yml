@@ -42,34 +42,22 @@ jobs:
         unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
       shell: bash
 
-    - name: Add Oracle JDBC wallet libraries
+    - name: Download Oracle JDBC + PKI jars
       run: |
-        mkdir -p $HOME/ojdbc
-        curl -LO https://download.oracle.com/otn-pub/otn_software/java/ojdbc8-full/ojdbc8-full.tar.gz
-        tar -xzf ojdbc8-full.tar.gz -C $HOME/ojdbc
-        cp $HOME/ojdbc/*.jar $HOME/liquibase/lib/
+        mkdir -p $OJDBC_DIR
+        curl -L -o ojdbc8.zip https://download.oracle.com/otn-pub/otn_software/jdbc/211/ojdbc8-full.zip
+        unzip -o ojdbc8.zip -d $OJDBC_DIR
+      shell: bash
 
-    - name: Descargar ojdbc8-full.tar.gz
+    - name: Run Liquibase update on Oracle ADB
       run: |
-         curl -L -o ojdbc8-full.tar.gz https://download.oracle.com/otn-pub/otn_software/java/ojdbc8-full/ojdbc8-full.tar.gz
-
-    - name: Verificar archivo descargado
-      run: |
-        file ojdbc8-full.tar.gz
-        
-    - name: Extraer y copiar librerías
-      run: |
-        mkdir -p $HOME/liquibase/lib
-        tar -xzf ojdbc8-full.tar.gz -C $HOME/liquibase/lib
-        
-    - name: Run SQL script on Oracle ADB
-      run: |
+        export CLASSPATH=$OJDBC_DIR/*:$CLASSPATH
         liquibase --driver=oracle.jdbc.OracleDriver \
-                  --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
-                  --username=${DB_USER} \
-                  --password=${DB_PASSWORD} \
-                  --changeLogFile=changelog_001.sql \
-                  update
+          --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
+          --username=${DB_USER} \
+          --password=${DB_PASSWORD} \
+          --changeLogFile=changelog_001.sql \
+          update
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
