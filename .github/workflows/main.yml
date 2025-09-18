@@ -49,7 +49,7 @@ jobs:
           --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
-          --changeLogFile=changelog_001.sql \          
+          --changeLogFile=changelog_001.sql \
           update
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
