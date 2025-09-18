@@ -48,6 +48,19 @@ jobs:
         curl -LO https://download.oracle.com/otn-pub/otn_software/java/ojdbc8-full/ojdbc8-full.tar.gz
         tar -xzf ojdbc8-full.tar.gz -C $HOME/ojdbc
         cp $HOME/ojdbc/*.jar $HOME/liquibase/lib/
+
+    - name: Descargar ojdbc8-full.tar.gz
+      run: |
+         curl -L -o ojdbc8-full.tar.gz https://download.oracle.com/otn-pub/otn_software/java/ojdbc8-full/ojdbc8-full.tar.gz
+
+    - name: Verificar archivo descargado
+      run: |
+        file ojdbc8-full.tar.gz
+        
+    - name: Extraer y copiar librerías
+      run: |
+        mkdir -p $HOME/liquibase/lib
+        tar -xzf ojdbc8-full.tar.gz -C $HOME/liquibase/lib
         
     - name: Run SQL script on Oracle ADB
       run: |
