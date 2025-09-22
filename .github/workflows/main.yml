@@ -39,26 +39,26 @@ jobs:
       
     - name: Instalar Liquibase y extensión de Oracle
       run: |
-       curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz | tar xz
-       curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar -o liquibase-oracle.jar
+        mkdir -p $HOME/liquibase
+        curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz \
+          | tar xz -C $HOME/liquibase --strip-components=1
+        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
+          -o $HOME/liquibase/lib/liquibase-oracle.jar
+        echo "$HOME/liquibase" >> $GITHUB_PATH
       shell: bash
   
     - name: Configurar variables de entorno
       run: |
-       echo "export LIQUIBASE_HOME=${GITHUB_WORKSPACE}/liquibase" >> $GITHUB_ENV
-       echo "export CLASSPATH=${GITHUB_WORKSPACE}/liquibase-oracle.jar:${GITHUB_WORKSPACE}/ojdbc8.jar:${GITHUB_WORKSPACE}/oraclepki.jar:${GITHUB_WORKSPACE}/osdt_core.jar:${GITHUB_WORKSPACE}/osdt_cert.jar" >> $GITHUB_ENV
-       echo "export TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
+        echo "CLASSPATH=$HOME/liquibase/lib/liquibase-oracle.jar:${OJDBC_DIR}/ojdbc8.jar:${OJDBC_DIR}/oraclepki.jar:${OJDBC_DIR}/osdt_core.jar:${OJDBC_DIR}/osdt_cert.jar" >> $GITHUB_ENV
+        echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
       shell: bash
 
     - name: Ejecutar Liquibase update
       run: |
-       liquibase --driver=oracle.jdbc.OracleDriver \
-              --url="jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=g715fad23c28830_apexdevdb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))" \
-              --username=${DB_USER} \
-              --password=${DB_PASSWORD} \
-              --changeLogFile=changelog_001.sql \
-              update
-       env:
-        DB_USER: GTIM
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}  
-   
+        liquibase \
+          --driver=oracle.jdbc.OracleDriver \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --username=${DB_USER} \
+          --password=${DB_PASSWORD} \
+          --changeLogFile=changelog_001.sql \
+          update
