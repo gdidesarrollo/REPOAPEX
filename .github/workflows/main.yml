@@ -39,14 +39,9 @@ jobs:
       
     - name: Instalar Liquibase y extensión de Oracle
       run: |
-       curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz | tar xz
-       curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar -o liquibase/lib/liquibase-oracle.jar
-
-        # Copiar los jars de Oracle al lib de liquibase
-       cp ojdbc8.jar liquibase/lib/
-       cp oraclepki.jar liquibase/lib/
-       cp osdt_core.jar liquibase/lib/
-       cp osdt_cert.jar liquibase/lib/
+       curl -sSL -o liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
+       unzip -q liquibase.zip -d liquibase
+       curl -sSL -o liquibase/lib/liquibase-oracle-1.0.0.jar https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar  
       shell: bash  
       
     - name: Configurar variables de entorno
