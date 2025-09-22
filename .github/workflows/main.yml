@@ -57,7 +57,7 @@ jobs:
         echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
       shell: bash
 
-    - name: Ejecutar Liquibase update      
-      shell: bash
+    - name: Ejecutar Liquibase update            
       run: |
        ${LIQUIBASE_HOME}/liquibase --driver=oracle.jdbc.OracleDriver --url="jdbc:oracle:thin:@${DB_ALIAS}" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update
+      shell: bash
