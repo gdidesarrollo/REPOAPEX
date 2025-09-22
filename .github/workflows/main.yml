@@ -58,4 +58,6 @@ jobs:
       shell: bash
 
     - name: Ejecutar Liquibase update      
-      run: /bin/bash -c "${LIQUIBASE_HOME}/liquibase --driver=oracle.jdbc.OracleDriver --url=\"jdbc:oracle:thin:@${DB_ALIAS}\" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update"
+      shell: bash
+      run: |
+       ${LIQUIBASE_HOME}/liquibase --driver=oracle.jdbc.OracleDriver --url="jdbc:oracle:thin:@${DB_ALIAS}" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update
