@@ -55,10 +55,4 @@ jobs:
 
     - name: Ejecutar Liquibase update
       run: |
-        liquibase \
-          --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
-          --username=${DB_USER} \
-          --password=${DB_PASSWORD} \
-          --changeLogFile=changelog_001.sql \
-          update
+        liquibase --driver=oracle.jdbc.OracleDriver --url="jdbc:oracle:thin:@${DB_ALIAS}" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update 
