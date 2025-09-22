@@ -44,16 +44,24 @@ jobs:
        curl -sSL -o liquibase/lib/liquibase-oracle-1.0.0.jar https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar  
       shell: bash  
       
-    - name: Configurar variables de entorno
-      run: |        
+    - name: Copiar librerías de seguridad al lib de Liquibase
+      run: |
+        cp ${TNS_ADMIN}/../*.jar liquibase/lib/ || true
+        cp ${GITHUB_WORKSPACE}/*.jar liquibase/lib/ || true
+      shell: bash
+
+    - name: Configurar entorno Liquibase
+      run: |
+        echo "LIQUIBASE_HOME=${GITHUB_WORKSPACE}/liquibase" >> $GITHUB_ENV
+        echo "PATH=${GITHUB_WORKSPACE}/liquibase:\$PATH" >> $GITHUB_ENV
         echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
       shell: bash
 
     - name: Ejecutar Liquibase update
       run: |
-        liquibase/liquibase --driver=oracle.jdbc.OracleDriver \
+        liquibase --driver=oracle.jdbc.OracleDriver \
           --url="jdbc:oracle:thin:@${DB_ALIAS}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
-         update
+          update
