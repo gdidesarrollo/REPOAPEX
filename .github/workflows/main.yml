@@ -58,6 +58,7 @@ jobs:
       shell: bash
 
     - name: Ejecutar Liquibase update
+      shell: bash
       run: |
         ${LIQUIBASE_HOME}/liquibase --driver=oracle.jdbc.OracleDriver \
          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
