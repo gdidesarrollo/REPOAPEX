@@ -58,4 +58,8 @@ jobs:
       shell: bash
 
     - name: Ejecutar Liquibase update
-      run: ${LIQUIBASE_HOME}/liquibase --driver=oracle.jdbc.OracleDriver --url="jdbc:oracle:thin:@${DB_ALIAS}" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql update
+      run: bash ./run_liquibase.sh
+       env:
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ALIAS: apexdevdb_high
