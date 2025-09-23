@@ -75,13 +75,7 @@ jobs:
         exit;
         EOF
         
-        liquibase \
-         --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high" \
-         --username=GTIM \
-         --password=${DB_PASSWORD} \
-         --changeLogFile=changelog_001.sql \
-         --logLevel=debug
-         update
+        liquibase update -changelog-file changelog_001.sql
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
