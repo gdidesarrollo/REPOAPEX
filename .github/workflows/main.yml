@@ -14,13 +14,12 @@ jobs:
       DB_ALIAS: apexdevdb_high
       DB_USER: GTIM
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      OJDBC_DIR: ${{ github.workspace }}/ojdbc
+      SQLCL_DIR: ${{ github.workspace }}/sqlcl
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # (Opcional) Solo si ocupas SQLcl además de Liquibase
     - name: Install SQLcl
       run: |
         sudo apt-get update
@@ -32,45 +31,18 @@ jobs:
       shell: bash  
 
     - name: Download and unzip Wallet
-      run: |        
-        mkdir -p "${{ github.workspace }}/Wallet_APEXDEVDB"
-        unzip -o Wallet_APEXDEVDB.zip -d "${{ github.workspace }}/Wallet_APEXDEVDB"
-        echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" >> $GITHUB_ENV
+      run: |
+        mkdir -p "${TNS_ADMIN}"
+        unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
       shell: bash
 
-    - name: Install Liquibase + Oracle extension
+    - name: Run SQL script on Oracle ADB
       run: |
-       mkdir -p $HOME/liquibase
-       curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip -o liquibase.zip
-       unzip -q liquibase.zip -d $HOME/liquibase
-
-       # Descargar extensión de Oracle
-       curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
-       -o $HOME/liquibase/lib/liquibase-oracle.jar
-
-       # Dar permisos al binario
-       chmod +x $HOME/liquibase/liquibase
-
-       # Exportar path
-       echo "$HOME/liquibase" >> $GITHUB_PATH
-      shell: bash
-    
-    - name: Download JDBC and PKI jars
-      run: |
-        mkdir -p ${OJDBC_DIR}
-        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/ojdbc8.jar -o ${OJDBC_DIR}/ojdbc8.jar
-        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/oraclepki.jar -o ${OJDBC_DIR}/oraclepki.jar
-        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/osdt_core.jar -o ${OJDBC_DIR}/osdt_core.jar
-        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/osdt_cert.jar -o ${OJDBC_DIR}/osdt_cert.jar
-      shell: bash
-
-    - name: Configure environment variables
-      run: |
-        echo "CLASSPATH=$HOME/liquibase/lib/liquibase-oracle.jar:${OJDBC_DIR}/ojdbc8.jar:${OJDBC_DIR}/oraclepki.jar:${OJDBC_DIR}/osdt_core.jar:${OJDBC_DIR}/osdt_cert.jar" >> $GITHUB_ENV
-        echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
-  #echo "JAVA_TOOL_OPTIONS=-Doracle.net.ssl_server_dn_match=false -Doracle.net.ssl_version=TLSv1.2" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Run Liquibase update
-      run: |
-        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql --logLevel=debug update
+        export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"
+        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" @BDD/TABLES/EMPLOYEES.sql
+      env:
+        TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
+        DB_ALIAS: apexdevdb_high
+        DB_USER: GTIM
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        SQLCL_DIR: ${{ github.workspace }}/sqlcl
