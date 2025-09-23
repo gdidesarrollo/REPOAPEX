@@ -70,14 +70,10 @@ jobs:
         export TNS_ADMIN="${GITHUB_WORKSPACE}/Wallet_APEXDEVDB"
         export PATH="${GITHUB_WORKSPACE}/sqlcl/sqlcl/bin:$PATH"
         
-        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF
-          SELECT * FROM EEEMPLOYEES;
+        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF          
           liquibase update -changelog-file changelog_001.sql
         exit;
         EOF
-        
-        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high" --username=GTIM --password=${SECRETS_DB_PASSWORD} --changeLogFile=changelog_001.sql update
-
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
