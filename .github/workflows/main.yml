@@ -39,13 +39,22 @@ jobs:
 
     - name: Install Liquibase + Oracle extension
       run: |
-        mkdir -p $HOME/liquibase
-        curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz \
-          | tar xz -C $HOME/liquibase --strip-components=1
-        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
-          -o $HOME/liquibase/lib/liquibase-oracle.jar
+       mkdir -p $HOME/liquibase
+       curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz \
+        | tar xz -C $HOME/liquibase --strip-components=1
+       curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
+        -o $HOME/liquibase/lib/liquibase-oracle.jar
+    
+       # Verifica que el binario existe
+       ls -l $HOME/liquibase
+
+       # Da permisos si existe
+       if [ -f "$HOME/liquibase/liquibase" ]; then
         chmod +x $HOME/liquibase/liquibase
-        echo "$HOME/liquibase" >> $GITHUB_PATH
+       fi
+
+       # Exporta path
+       echo "$HOME/liquibase" >> $GITHUB_PATH
       shell: bash
 
     - name: Download JDBC and PKI jars
