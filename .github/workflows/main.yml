@@ -58,8 +58,7 @@ jobs:
       shell: bash
 
     - name: Ejecutar Liquibase update
-      run: bash ./run_liquibase.sh
-      shell: bash
+      run: sh ./run_liquibase.sh 
       env:
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
