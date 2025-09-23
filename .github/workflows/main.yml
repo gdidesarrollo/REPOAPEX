@@ -72,4 +72,4 @@ jobs:
 
     - name: Run Liquibase update
       run: |
-        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high?TNS_ADMIN --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql --logLevel=debug update
+        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high?TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql --logLevel=debug update
