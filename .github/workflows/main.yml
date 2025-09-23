@@ -72,7 +72,7 @@ jobs:
     - name: Run Liquibase update
       run: |
         liquibase \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
+          --url="jdbc:oracle:thin:@//apexdevdb_high?TNS_ADMIN=${TNS_ADMIN}&ssl=false" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
