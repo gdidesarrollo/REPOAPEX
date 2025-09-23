@@ -35,6 +35,7 @@ jobs:
       run: |        
         mkdir -p "${{ github.workspace }}/Wallet_APEXDEVDB"
         unzip -o Wallet_APEXDEVDB.zip -d "${{ github.workspace }}/Wallet_APEXDEVDB"
+        echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" >> $GITHUB_ENV
       shell: bash
 
     - name: Install Liquibase + Oracle extension
@@ -72,4 +73,4 @@ jobs:
 
     - name: Run Liquibase update
       run: |
-        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high?TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql --logLevel=debug update
+        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high" --username=${DB_USER} --password=${DB_PASSWORD} --changeLogFile=changelog_001.sql --logLevel=debug update
