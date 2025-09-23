@@ -67,13 +67,15 @@ jobs:
       run: |
         echo "CLASSPATH=$HOME/liquibase/lib/liquibase-oracle.jar:${OJDBC_DIR}/ojdbc8.jar:${OJDBC_DIR}/oraclepki.jar:${OJDBC_DIR}/osdt_core.jar:${OJDBC_DIR}/osdt_cert.jar" >> $GITHUB_ENV
         echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
+        echo "JAVA_TOOL_OPTIONS=-Doracle.net.ssl_server_dn_match=false -Doracle.net.ssl_version=TLSv1.2" >> $GITHUB_ENV
       shell: bash
 
     - name: Run Liquibase update
       run: |
         liquibase \
-          --url="jdbc:oracle:thin:@//apexdevdb_high?TNS_ADMIN=${TNS_ADMIN}&oracle.net.ssl_server_dn_match=false&oracle.net.ssl_version=1.2" \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
+          --logLevel=debug \
           update
