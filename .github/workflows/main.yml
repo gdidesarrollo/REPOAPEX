@@ -10,77 +10,55 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
       DB_ALIAS: apexdevdb_high
       DB_USER: GTIM
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
-      LIQUIBASE_HOME: ${{ github.workspace }}/liquibase
+      SQLCL_DIR: ${{ github.workspace }}/sqlcl
       OJDBC_DIR: ${{ github.workspace }}/ojdbc
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y unzip wget curl
-
     - name: Install SQLcl
       run: |
+        sudo apt-get update
+        sudo apt-get install -y unzip wget
         wget --no-cookies --no-check-certificate \
-          --header "Cookie: oraclelicense=accept-securebackup-cookie" \
-          https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip -O sqlcl.zip
+             --header "Cookie: oraclelicense=accept-securebackup-cookie" \
+             https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip -O sqlcl.zip
         unzip -q sqlcl.zip -d sqlcl
+      shell: bash  
 
     - name: Download and unzip Wallet
       run: |
         mkdir -p "${TNS_ADMIN}"
         unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
-
-    - name: Install Liquibase and Oracle extension
+      shell: bash
+      
+    - name: Instalar Liquibase y extensión de Oracle
       run: |
-        mkdir -p ${LIQUIBASE_HOME}
-        curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz | tar -xz -C ${LIQUIBASE_HOME} --strip-components=1
-        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar -o ${LIQUIBASE_HOME}/liquibase-oracle.jar
-
-    - name: Copiar JARs de Oracle desde repo
+        mkdir -p $HOME/liquibase
+        curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz \
+          | tar xz -C $HOME/liquibase --strip-components=1
+        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
+          -o $HOME/liquibase/lib/liquibase-oracle.jar
+        echo "$HOME/liquibase" >> $GITHUB_PATH
+      shell: bash
+  
+    - name: Configurar variables de entorno
       run: |
-        mkdir -p ${OJDBC_DIR}
-        cp libs/ojdbc8.jar ${OJDBC_DIR}/
-        cp libs/oraclepki.jar ${OJDBC_DIR}/
-        cp libs/osdt_core.jar ${OJDBC_DIR}/
-        cp libs/osdt_cert.jar ${OJDBC_DIR}/
-
-    - name: Crear script para Liquibase
-      run: |
-        cat > run_liquibase.sh << 'EOF'
-        #!/bin/sh
-        set -e
-
-        LIQUIBASE_HOME="${GITHUB_WORKSPACE}/liquibase"
-        DB_ALIAS="${DB_ALIAS}"
-        DB_USER="${DB_USER}"
-        DB_PASSWORD="${DB_PASSWORD}"
-        CHANGELOG_FILE="changelog_001.sql"
-        CLASSPATH="${LIQUIBASE_HOME}/liquibase-oracle.jar:${GITHUB_WORKSPACE}/ojdbc/ojdbc8.jar:${GITHUB_WORKSPACE}/ojdbc/oraclepki.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_core.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_cert.jar"
-
-        export CLASSPATH
-        export TNS_ADMIN="${GITHUB_WORKSPACE}/Wallet_APEXDEVDB"
-
-        $LIQUIBASE_HOME/liquibase \
-          --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
-          --username="$DB_USER" \
-          --password="$DB_PASSWORD" \
-          --changeLogFile="$CHANGELOG_FILE" \
-          update
-        EOF
-        chmod +x run_liquibase.sh
+        echo "CLASSPATH=$HOME/liquibase/lib/liquibase-oracle.jar:${OJDBC_DIR}/ojdbc8.jar:${OJDBC_DIR}/oraclepki.jar:${OJDBC_DIR}/osdt_core.jar:${OJDBC_DIR}/osdt_cert.jar" >> $GITHUB_ENV
+        echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
+      shell: bash
 
     - name: Ejecutar Liquibase update
-      run: sh ./run_liquibase.sh
-      env:
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_ALIAS: apexdevdb_high
+      run: |
+        liquibase \
+          --driver=oracle.jdbc.OracleDriver \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --username=${DB_USER} \
+          --password=${DB_PASSWORD} \
+          --changeLogFile=changelog_001.sql \
+          update
