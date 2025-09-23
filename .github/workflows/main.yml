@@ -14,13 +14,13 @@ jobs:
       DB_ALIAS: apexdevdb_high
       DB_USER: GTIM
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      SQLCL_DIR: ${{ github.workspace }}/sqlcl
       OJDBC_DIR: ${{ github.workspace }}/ojdbc
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # (Opcional) Solo si ocupas SQLcl además de Liquibase
     - name: Install SQLcl
       run: |
         sudo apt-get update
@@ -36,28 +36,37 @@ jobs:
         mkdir -p "${TNS_ADMIN}"
         unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
       shell: bash
-      
-    - name: Instalar Liquibase y extensión de Oracle
+
+    - name: Install Liquibase + Oracle extension
       run: |
         mkdir -p $HOME/liquibase
         curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz \
           | tar xz -C $HOME/liquibase --strip-components=1
         curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar \
           -o $HOME/liquibase/lib/liquibase-oracle.jar
+        chmod +x $HOME/liquibase/liquibase
         echo "$HOME/liquibase" >> $GITHUB_PATH
       shell: bash
-  
-    - name: Configurar variables de entorno
+
+    - name: Download JDBC and PKI jars
+      run: |
+        mkdir -p ${OJDBC_DIR}
+        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/ojdbc8.jar -o ${OJDBC_DIR}/ojdbc8.jar
+        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/oraclepki.jar -o ${OJDBC_DIR}/oraclepki.jar
+        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/osdt_core.jar -o ${OJDBC_DIR}/osdt_core.jar
+        curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/osdt_cert.jar -o ${OJDBC_DIR}/osdt_cert.jar
+      shell: bash
+
+    - name: Configure environment variables
       run: |
         echo "CLASSPATH=$HOME/liquibase/lib/liquibase-oracle.jar:${OJDBC_DIR}/ojdbc8.jar:${OJDBC_DIR}/oraclepki.jar:${OJDBC_DIR}/osdt_core.jar:${OJDBC_DIR}/osdt_cert.jar" >> $GITHUB_ENV
         echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
       shell: bash
 
-    - name: Ejecutar Liquibase update
+    - name: Run Liquibase update
       run: |
         liquibase \
-          --driver=oracle.jdbc.OracleDriver \
-          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}?TNS_ADMIN=${TNS_ADMIN}" \
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
