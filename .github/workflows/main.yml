@@ -42,4 +42,45 @@ jobs:
       run: |
         mkdir -p ${LIQUIBASE_HOME}
         curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz | tar -xz -C ${LIQUIBASE_HOME} --strip-components=1
-        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-or
+        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar -o ${LIQUIBASE_HOME}/liquibase-oracle.jar
+
+    - name: Copiar JARs de Oracle desde repo
+      run: |
+        mkdir -p ${OJDBC_DIR}
+        cp libs/ojdbc8.jar ${OJDBC_DIR}/
+        cp libs/oraclepki.jar ${OJDBC_DIR}/
+        cp libs/osdt_core.jar ${OJDBC_DIR}/
+        cp libs/osdt_cert.jar ${OJDBC_DIR}/
+
+    - name: Crear script para Liquibase
+      run: |
+        cat > run_liquibase.sh << 'EOF'
+        #!/bin/sh
+        set -e
+
+        LIQUIBASE_HOME="${GITHUB_WORKSPACE}/liquibase"
+        DB_ALIAS="${DB_ALIAS}"
+        DB_USER="${DB_USER}"
+        DB_PASSWORD="${DB_PASSWORD}"
+        CHANGELOG_FILE="changelog_001.sql"
+        CLASSPATH="${LIQUIBASE_HOME}/liquibase-oracle.jar:${GITHUB_WORKSPACE}/ojdbc/ojdbc8.jar:${GITHUB_WORKSPACE}/ojdbc/oraclepki.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_core.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_cert.jar"
+
+        export CLASSPATH
+        export TNS_ADMIN="${GITHUB_WORKSPACE}/Wallet_APEXDEVDB"
+
+        $LIQUIBASE_HOME/liquibase \
+          --driver=oracle.jdbc.OracleDriver \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --username="$DB_USER" \
+          --password="$DB_PASSWORD" \
+          --changeLogFile="$CHANGELOG_FILE" \
+          update
+        EOF
+        chmod +x run_liquibase.sh
+
+    - name: Ejecutar Liquibase update
+      run: sh ./run_liquibase.sh
+      env:
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_ALIAS: apexdevdb_high
