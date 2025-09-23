@@ -75,7 +75,10 @@ jobs:
         exit;
         EOF
         
-        liquibase --changeLogFile=changelog_001.sql update
+        liquibase \      
+        --changeLogFile=changelog_001.sql \
+        --logLevel=debug \
+        update
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
