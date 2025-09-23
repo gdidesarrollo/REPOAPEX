@@ -72,10 +72,12 @@ jobs:
         
         sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF
           SELECT * FROM EEEMPLOYEES;
+          liquibase update -changelog-file changelog_001.sql
         exit;
         EOF
         
-        liquibase --changeLogFile=changelog_001.sql --logLevel=debug update
+        liquibase --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high" --username=GTIM --password=${SECRETS_DB_PASSWORD} --changeLogFile=changelog_001.sql update
+
       env:
         TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
         DB_ALIAS: apexdevdb_high
