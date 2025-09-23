@@ -32,9 +32,9 @@ jobs:
       shell: bash  
 
     - name: Download and unzip Wallet
-      run: |
-        mkdir -p "${TNS_ADMIN}"
-        unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
+      run: |        
+        mkdir -p "${{ github.workspace }}/Wallet_APEXDEVDB"
+        unzip -o Wallet_APEXDEVDB.zip -d "${{ github.workspace }}/Wallet_APEXDEVDB"
       shell: bash
 
     - name: Install Liquibase + Oracle extension
@@ -72,8 +72,8 @@ jobs:
 
     - name: Run Liquibase update
       run: |
-        liquibase \
-          --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high?TNS_ADMIN=${TNS_ADMIN}" \
+        liquibase \          
+          --url="jdbc:oracle:thin:@//adb.us-phoenix-1.oraclecloud.com:1522/g715fad23c28830_apexdevdb_high?TNS_ADMIN
           --username=${DB_USER} \
           --password=${DB_PASSWORD} \
           --changeLogFile=changelog_001.sql \
