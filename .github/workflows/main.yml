@@ -4,61 +4,83 @@ on:
   push:
     branches:
       - main
-      
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     env:
-      TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
       DB_ALIAS: apexdevdb_high
       DB_USER: GTIM
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      SQLCL_DIR: ${{ github.workspace }}/sqlcl
+      TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
+      LIQUIBASE_HOME: ${{ github.workspace }}/liquibase
       OJDBC_DIR: ${{ github.workspace }}/ojdbc
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install SQLcl
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y unzip wget
+        sudo apt-get install -y unzip wget curl
+
+    - name: Install SQLcl
+      run: |
         wget --no-cookies --no-check-certificate \
-             --header "Cookie: oraclelicense=accept-securebackup-cookie" \
-             https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip -O sqlcl.zip
+          --header "Cookie: oraclelicense=accept-securebackup-cookie" \
+          https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip -O sqlcl.zip
         unzip -q sqlcl.zip -d sqlcl
-      shell: bash  
 
     - name: Download and unzip Wallet
       run: |
         mkdir -p "${TNS_ADMIN}"
         unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
-      shell: bash
-      
-    - name: Instalar Liquibase y extensión de Oracle
-      run: |
-       curl -sSL -o liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
-       unzip -q liquibase.zip -d liquibase
-       curl -sSL -o liquibase/lib/liquibase-oracle-1.0.0.jar https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar  
-      shell: bash  
-      
-    - name: Copiar librerías de seguridad al lib de Liquibase
-      run: |
-        cp ${TNS_ADMIN}/../*.jar liquibase/lib/ || true
-        cp ${GITHUB_WORKSPACE}/*.jar liquibase/lib/ || true
-      shell: bash
 
-    - name: Configurar entorno Liquibase
+    - name: Install Liquibase and Oracle extension
       run: |
-        echo "LIQUIBASE_HOME=${GITHUB_WORKSPACE}/liquibase" >> $GITHUB_ENV
-        echo "PATH=${GITHUB_WORKSPACE}/liquibase:\$PATH" >> $GITHUB_ENV
-        echo "TNS_ADMIN=${GITHUB_WORKSPACE}/Wallet_APEXDEVDB" >> $GITHUB_ENV
-      shell: bash
+        mkdir -p ${LIQUIBASE_HOME}
+        curl -sSL https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.tar.gz | tar -xz -C ${LIQUIBASE_HOME} --strip-components=1
+        curl -sSL https://github.com/liquibase/liquibase-oracle/releases/download/v1.0.0/liquibase-oracle-1.0.0.jar -o ${LIQUIBASE_HOME}/liquibase-oracle.jar
+
+    - name: Download Oracle JDBC and PKI jars
+      run: |
+        mkdir -p ${OJDBC_DIR}
+        # Asume que tenés ojdbc8.jar, oraclepki.jar, osdt_core.jar, osdt_cert.jar en tu repo
+        cp ojdbc8.jar ${OJDBC_DIR}/
+        cp oraclepki.jar ${OJDBC_DIR}/
+        cp osdt_core.jar ${OJDBC_DIR}/
+        cp osdt_cert.jar ${OJDBC_DIR}/
+
+    - name: Crear script para Liquibase
+      run: |
+        cat > run_liquibase.sh << 'EOF'
+        #!/bin/sh
+        set -e
+
+        LIQUIBASE_HOME="${GITHUB_WORKSPACE}/liquibase"
+        DB_ALIAS="${DB_ALIAS}"
+        DB_USER="${DB_USER}"
+        DB_PASSWORD="${DB_PASSWORD}"
+        CHANGELOG_FILE="changelog_001.sql"
+        CLASSPATH="${LIQUIBASE_HOME}/liquibase-oracle.jar:${GITHUB_WORKSPACE}/ojdbc/ojdbc8.jar:${GITHUB_WORKSPACE}/ojdbc/oraclepki.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_core.jar:${GITHUB_WORKSPACE}/ojdbc/osdt_cert.jar"
+
+        export CLASSPATH
+        export TNS_ADMIN="${GITHUB_WORKSPACE}/Wallet_APEXDEVDB"
+
+        $LIQUIBASE_HOME/liquibase \
+          --driver=oracle.jdbc.OracleDriver \
+          --url="jdbc:oracle:thin:@${DB_ALIAS}" \
+          --username="$DB_USER" \
+          --password="$DB_PASSWORD" \
+          --changeLogFile="$CHANGELOG_FILE" \
+          update
+        EOF
+        chmod +x run_liquibase.sh
 
     - name: Ejecutar Liquibase update
-      run: sh ./run_liquibase.sh 
+      run: sh ./run_liquibase.sh
       env:
         DB_USER: ${{ secrets.DB_USER }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
