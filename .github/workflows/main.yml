@@ -8,6 +8,7 @@ on:
       - test
       - qa
       - prd
+      
 
 jobs:
   deploy:
