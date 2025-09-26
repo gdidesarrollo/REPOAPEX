@@ -38,19 +38,19 @@ jobs:
           echo "WALLET_FILE=Wallet_APEXDEVDB.zip" >> $GITHUB_ENV
           echo "DB_USER_DESA=$DB_USER_DESA"
         elif [[ "$ref" == "test" ]]; then
-          echo "DB_USER=${DB_USER_TEST}" >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER_TEST" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_TST }}" >> $GITHUB_ENV
           echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXTESTDB" >> $GITHUB_ENV
           echo "DB_ALIAS=apextestdb_high" >> $GITHUB_ENV
           echo "WALLET_FILE=Wallet_APEXTESTDB.zip" >> $GITHUB_ENV
         elif [[ "$ref" == "qa" ]]; then
-          echo "DB_USER=${DB_USER_QA}" >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER_QA" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_QA }}" >> $GITHUB_ENV
           echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXQADB" >> $GITHUB_ENV
           echo "DB_ALIAS=apexqadb_high" >> $GITHUB_ENV
           echo "WALLET_FILE=Wallet_APEXQADB.zip" >> $GITHUB_ENV
         elif [[ "$ref" == "prd" ]]; then
-          echo "DB_USER=${DB_USER_PRD}" >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER_PRD" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_PRD }}" >> $GITHUB_ENV
           echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXPRDDB" >> $GITHUB_ENV
           echo "DB_ALIAS=apexprddb_high" >> $GITHUB_ENV
@@ -115,7 +115,7 @@ jobs:
         echo "DB_ALIAS=${DB_ALIAS}"
         echo "TNS_ADMIN=${TNS_ADMIN}"
         
-        sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF          
+        sql -s "${DB_USER}/${DB_PASSWORD}@${DB_ALIAS}" <<EOF          
           liquibase update -changelog-file changelog_001.sql
         exit;
         EOF
