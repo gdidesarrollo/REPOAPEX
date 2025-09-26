@@ -37,6 +37,7 @@ jobs:
           echo "DB_ALIAS=apexdevdb_high" >> $GITHUB_ENV
           echo "WALLET_FILE=Wallet_APEXDEVDB.zip" >> $GITHUB_ENV
           echo "DB_USER_DESA=$DB_USER_DESA"
+          echo "DB_PASSWORD=$DB_PASSWORD"
         elif [[ "$ref" == "test" ]]; then
           echo "DB_USER=$DB_USER_TEST" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_TST }}" >> $GITHUB_ENV
