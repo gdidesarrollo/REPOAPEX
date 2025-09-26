@@ -114,6 +114,7 @@ jobs:
         echo "DB_PASSWORD=${DB_PASSWORD}"
         echo "DB_ALIAS=${DB_ALIAS}"
         echo "TNS_ADMIN=${TNS_ADMIN}"
+        echo "coenxion= \"${DB_USER}/${DB_PASSWORD}@${DB_ALIAS}\""
         
         sql -s "\"${DB_USER}/${DB_PASSWORD}@${DB_ALIAS}\"" <<EOF          
           liquibase update -changelog-file changelog_001.sql
