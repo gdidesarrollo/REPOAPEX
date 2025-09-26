@@ -32,7 +32,7 @@ jobs:
         echo "Branch: $ref"
         if [[ "$ref" == "desa" ]]; then
           echo "DB_USER=$DB_USER" >> $GITHUB_ENV          
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_DESAOLD }}" >> $GITHUB_ENV
           echo "TNS_ADMIN=${{ github.workspace }}/Wallet_APEXDEVDB" >> $GITHUB_ENV
           echo "DB_ALIAS=apexdevdb_high" >> $GITHUB_ENV
           echo "WALLET_FILE=Wallet_APEXDEVDB.zip" >> $GITHUB_ENV
