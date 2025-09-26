@@ -20,6 +20,7 @@ jobs:
       DB_USER_TEST: ${{ vars.DB_USER_TEST }}
       DB_USER_QA: ${{ vars.DB_USER_QA }}
       DB_USER_PRD: ${{ vars.DB_USER_PRD }}
+      DB_USER: ${{ vars.DB_USER }}
 
     steps:
     - name: Checkout repository
