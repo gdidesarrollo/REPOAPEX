@@ -101,7 +101,8 @@ jobs:
         export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"
         export TNS_ADMIN
         export PATH="${GITHUB_WORKSPACE}/sqlcl/sqlcl/bin:$PATH"
-       
+
+        mkdir -p "${TNS_ADMIN}"
         unzip -o "${WALLET_FILE}" -d "${TNS_ADMIN}"
         echo "TNS_ADMIN=${TNS_ADMIN}" >> $GITHUB_ENV
         
