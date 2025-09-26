@@ -96,15 +96,20 @@ jobs:
         curl -sSL https://download.oracle.com/otn-pub/otn_software/jdbc/ojdbc8-full/21/osdt_cert.jar -o ${OJDBC_DIR}/osdt_cert.jar
       shell: bash
 
+    - name: Download and unzip Wallet
+      run: |
+        mkdir -p "${TNS_ADMIN}"
+        unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
+        echo "TNS_ADMIN=${TNS_ADMIN}" >> $GITHUB_ENV		
+      shell: bash
+      env:
+        TNS_ADMIN: ${{ env.TNS_ADMIN }}
+
     - name: Run SQL script on Oracle ADB
       run: |
         export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"
-        export TNS_ADMIN
+        
         export PATH="${GITHUB_WORKSPACE}/sqlcl/sqlcl/bin:$PATH"
-
-        mkdir -p "${TNS_ADMIN}"
-        unzip -o "${WALLET_FILE}" -d "${TNS_ADMIN}"
-        echo "TNS_ADMIN=${TNS_ADMIN}" >> $GITHUB_ENV
         
         sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF          
           liquibase update -changelog-file changelog_001.sql
