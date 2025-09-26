@@ -14,11 +14,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      TNS_ADMIN: ${{ github.workspace }}/Wallet_APEXDEVDB
-      DB_ALIAS: apexdevdb_high
-      DB_USER: GTIM
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    env:      
       SQLCL_DIR: ${{ github.workspace }}/sqlcl
       OJDBC_DIR: ${{ github.workspace }}/ojdbc
 
