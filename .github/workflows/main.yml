@@ -107,9 +107,13 @@ jobs:
 
     - name: Run SQL script on Oracle ADB
       run: |
-        export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"
-        
+        export PATH="${SQLCL_DIR}/sqlcl/bin:$PATH"        
         export PATH="${GITHUB_WORKSPACE}/sqlcl/sqlcl/bin:$PATH"
+
+        echo "DB_USER=${DB_USER}"
+        echo "DB_PASSWORD=${DB_PASSWORD}"
+        echo "DB_ALIAS=${DB_ALIAS}"
+        echo "TNS_ADMIN=${TNS_ADMIN}"
         
         sql -s "\"${DB_USER}\"/${DB_PASSWORD}@${DB_ALIAS}" <<EOF          
           liquibase update -changelog-file changelog_001.sql
