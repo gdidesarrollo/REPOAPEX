@@ -8,7 +8,6 @@ on:
       - test
       - qa
       - prd
-      
 jobs:
   deploy:
     runs-on: ubuntu-latest
