@@ -99,11 +99,12 @@ jobs:
     - name: Download and unzip Wallet
       run: |
         mkdir -p "${TNS_ADMIN}"
-        unzip -o Wallet_APEXDEVDB.zip -d "${TNS_ADMIN}"
+        unzip -o "${WALLET_FILE}" -d "${TNS_ADMIN}"
         echo "TNS_ADMIN=${TNS_ADMIN}" >> $GITHUB_ENV		
       shell: bash
       env:
         TNS_ADMIN: ${{ env.TNS_ADMIN }}
+        WALLET_FILE: ${{ env.WALLET_FILE }}
 
     - name: Run SQL script on Oracle ADB
       run: |
