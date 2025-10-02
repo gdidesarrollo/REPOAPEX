@@ -7,8 +7,7 @@ on:
       - desa
       - test
       - qa
-      - prd
-      
+      - prd     
 jobs:
   deploy:
     runs-on: ubuntu-latest
