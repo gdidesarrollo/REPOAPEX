@@ -8,4 +8,6 @@ create TABLE MEDICAMENTOS (ID NUMBER);
 --comment: insert
 insert into MEDICAMENTOS values(1);
 
-
+--changeset jgarcia:3 labels:example-label context:example-context
+--comment: insert
+insert into MEDICAMENTOS values(2);
