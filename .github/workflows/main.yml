@@ -98,7 +98,7 @@ jobs:
 
     - name: Download and unzip Wallet
       run: |
-        mkdir -p "${TNS_ADMIN}"
+        mkdir -p "${TNS_ADMIN}"        
         unzip -o "${WALLET_FILE}" -d "${TNS_ADMIN}"	
         echo "TNS_ADMIN=${TNS_ADMIN}" >> $GITHUB_ENV		
       shell: bash
